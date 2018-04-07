@@ -77,7 +77,7 @@ public class Data {
     private Object emails;
     @SerializedName("ogrn_date")
     @Expose
-    private Integer ogrnDate;
+    private Long ogrnDate;
     @SerializedName("okved_type")
     @Expose
     private String okvedType;
@@ -266,11 +266,11 @@ public class Data {
         this.emails = emails;
     }
 
-    public Integer getOgrnDate() {
+    public Long getOgrnDate() {
         return ogrnDate;
     }
 
-    public void setOgrnDate(Integer ogrnDate) {
+    public void setOgrnDate(Long ogrnDate) {
         this.ogrnDate = ogrnDate;
     }
 
