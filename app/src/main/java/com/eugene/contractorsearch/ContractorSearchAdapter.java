@@ -46,6 +46,7 @@ public class ContractorSearchAdapter extends ArrayAdapter<Contractor> implements
             textView = (TextView) layoutInflater.inflate(android.R.layout.simple_dropdown_item_1line, parent, false);
         }
         textView.setText(getItem(position).getValue());
+        textView.setOnClickListener(v -> System.out.println("clicked"));
         return textView;
     }
 

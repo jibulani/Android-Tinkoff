@@ -18,6 +18,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".latest_contractors.LatestContractorsActivity" />
+        <activity android:name=".contractor_info.ContractorInfoActivity" />
     </application>
 
 </manifest>
