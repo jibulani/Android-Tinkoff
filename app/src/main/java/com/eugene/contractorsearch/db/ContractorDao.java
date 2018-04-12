@@ -7,8 +7,8 @@ import android.arch.persistence.room.Query;
 @Dao
 public interface ContractorDao {
     @Insert
-    long insert(ContractorShortInfo contractorShortInfo);
+    void insert(ContractorShortInfo contractorShortInfo);
 
-    @Query("SELECT * FROM contractorshortinfo WHERE id = :id LIMIT 1")
-    ContractorShortInfo getContractorById(long id);
+    @Query("SELECT * FROM contractorshortinfo WHERE hid = :hid LIMIT 1")
+    ContractorShortInfo getContractorById(String hid);
 }

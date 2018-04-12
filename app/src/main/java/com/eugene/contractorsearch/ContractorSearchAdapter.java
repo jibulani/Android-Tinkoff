@@ -2,7 +2,9 @@ package com.eugene.contractorsearch;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -14,6 +16,9 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
+import com.eugene.contractorsearch.contractor_info.ContractorInfoActivity;
+import com.eugene.contractorsearch.db.AppDatabase;
+import com.eugene.contractorsearch.db.ContractorShortInfo;
 import com.eugene.contractorsearch.model.Contractor;
 import com.eugene.contractorsearch.network.ApiDadataServer;
 import com.eugene.contractorsearch.network.RequestObject;
@@ -21,6 +26,7 @@ import com.eugene.contractorsearch.network.RequestObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
@@ -29,11 +35,13 @@ public class ContractorSearchAdapter extends ArrayAdapter<Contractor> implements
     private LayoutInflater layoutInflater;
     private ApiDadataServer apiDadataServer;
     private List<Contractor> contractorList;
+    private AppDatabase appDatabase;
 
     public ContractorSearchAdapter(final Context context) {
         super(context, -1);
         layoutInflater = LayoutInflater.from(context);
         apiDadataServer = new ApiDadataServer();
+        appDatabase = App.getInstance().getAppDatabase();
     }
 
     @NonNull
@@ -45,9 +53,30 @@ public class ContractorSearchAdapter extends ArrayAdapter<Contractor> implements
         } else {
             textView = (TextView) layoutInflater.inflate(android.R.layout.simple_dropdown_item_1line, parent, false);
         }
-        textView.setText(getItem(position).getValue());
-        textView.setOnClickListener(v -> System.out.println("clicked"));
+        Contractor contractor = getItem(position);
+        textView.setText(contractor.getValue());
+        textView.setOnClickListener(v -> {
+            Single.fromCallable(() -> saveContractor(contractor))
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            hid -> {
+                                Bundle bundle = new Bundle();
+                                bundle.putString("hid", hid);
+                                Intent intent = new Intent(v.getContext(), ContractorInfoActivity.class);
+                                intent.putExtras(bundle);
+                                v.getContext().startActivity(intent);
+                            });
+        });
         return textView;
+    }
+
+    private String saveContractor(Contractor contractor) {
+        if (appDatabase.contractorDao().getContractorById(contractor.getData().getHid()) == null) {
+            ContractorShortInfo contractorShortInfo = new ContractorShortInfo(contractor);
+            appDatabase.contractorDao().insert(contractorShortInfo);
+        }
+        return contractor.getData().getHid();
     }
 
     @NonNull
@@ -57,7 +86,6 @@ public class ContractorSearchAdapter extends ArrayAdapter<Contractor> implements
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
-                //final List<Contractor>[] contractorList = new List[]{null};
                 if (constraint != null) {
                     RequestObject requestObject = new RequestObject();
                     requestObject.setQuery(constraint.toString());
