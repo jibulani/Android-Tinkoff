@@ -20,8 +20,10 @@ import com.eugene.contractorsearch.contractor_info.ContractorInfoActivity;
 import com.eugene.contractorsearch.db.AppDatabase;
 import com.eugene.contractorsearch.db.ContractorShortInfo;
 import com.eugene.contractorsearch.model.Contractor;
-import com.eugene.contractorsearch.network.ApiDadataServer;
-import com.eugene.contractorsearch.network.RequestObject;
+import com.eugene.contractorsearch.model.Coordinates;
+import com.eugene.contractorsearch.network.dadata.ApiDadataServer;
+import com.eugene.contractorsearch.network.dadata.RequestObject;
+import com.eugene.contractorsearch.network.google_geocoding.GoogleGeocodingServer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,16 +34,20 @@ import io.reactivex.schedulers.Schedulers;
 
 public class ContractorSearchAdapter extends ArrayAdapter<Contractor> implements Filterable {
 
+    public static final String CONTRACTOR_ID = "contractor_id";
+
     private LayoutInflater layoutInflater;
     private ApiDadataServer apiDadataServer;
     private List<Contractor> contractorList;
     private AppDatabase appDatabase;
+    private GoogleGeocodingServer googleGeocodingServer;
 
     public ContractorSearchAdapter(final Context context) {
         super(context, -1);
         layoutInflater = LayoutInflater.from(context);
         apiDadataServer = new ApiDadataServer();
         appDatabase = App.getInstance().getAppDatabase();
+        googleGeocodingServer = new GoogleGeocodingServer();
     }
 
     @NonNull
@@ -56,22 +62,31 @@ public class ContractorSearchAdapter extends ArrayAdapter<Contractor> implements
         Contractor contractor = getItem(position);
         textView.setText(contractor.getValue());
         textView.setOnClickListener(v -> {
-            Single.fromCallable(() -> saveContractor(contractor))
+            String key = v.getContext().getResources().getString(R.string.google_maps_key);
+            googleGeocodingServer.getCoordinates(contractor.getData().getAddress().getValue(), key)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                            hid -> {
-                                Bundle bundle = new Bundle();
-                                bundle.putString("hid", hid);
-                                Intent intent = new Intent(v.getContext(), ContractorInfoActivity.class);
-                                intent.putExtras(bundle);
-                                v.getContext().startActivity(intent);
-                            });
+                    .subscribe(coordinates -> {
+                        Single.fromCallable(() -> saveContractor(contractor, coordinates))
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(
+                                        hid -> {
+                                            Bundle bundle = new Bundle();
+                                            bundle.putString(CONTRACTOR_ID, hid);
+                                            Intent intent = new Intent(v.getContext(), ContractorInfoActivity.class);
+                                            intent.putExtras(bundle);
+                                            v.getContext().startActivity(intent);
+                                        });
+                        System.out.println(coordinates.getLat());
+                    });
+
+
         });
         return textView;
     }
 
-    private String saveContractor(Contractor contractor) {
+    private String saveContractor(Contractor contractor, Coordinates coordinates) {
         ContractorShortInfo oldContractor = appDatabase.contractorDao()
                 .getContractorById(contractor.getData().getHid());
         boolean isFavourite = false;
@@ -80,6 +95,7 @@ public class ContractorSearchAdapter extends ArrayAdapter<Contractor> implements
             appDatabase.contractorDao().deleteContractor(oldContractor);
         }
         ContractorShortInfo contractorShortInfo = new ContractorShortInfo(contractor, isFavourite);
+        contractorShortInfo.setCoordinates(coordinates);
         appDatabase.contractorDao().insert(contractorShortInfo);
         return contractor.getData().getHid();
     }

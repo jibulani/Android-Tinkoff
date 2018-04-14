@@ -1,11 +1,13 @@
 package com.eugene.contractorsearch.db;
 
 
+import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
 import com.eugene.contractorsearch.model.Contractor;
+import com.eugene.contractorsearch.model.Coordinates;
 
 import java.util.Date;
 
@@ -25,6 +27,8 @@ public class ContractorShortInfo {
     String address;
     Date lastRequestDate;
     boolean isFavourite;
+    @Embedded
+    Coordinates coordinates;
 
     public ContractorShortInfo() {}
 
@@ -39,8 +43,6 @@ public class ContractorShortInfo {
                 managerPost = contractor.getData().getManagement().getPost();
             }
         }
-        managerName = contractor.getData().getManagement().getName();
-        managerPost = contractor.getData().getManagement().getPost();
         kpp = contractor.getData().getKpp();
         fullName = contractor.getData().getName().getFullWithOpf();
         inn = contractor.getData().getInn();
@@ -136,5 +138,13 @@ public class ContractorShortInfo {
 
     public void setFavourite(boolean favourite) {
         isFavourite = favourite;
+    }
+
+    public Coordinates getCoordinates() {
+        return coordinates;
+    }
+
+    public void setCoordinates(Coordinates coordinates) {
+        this.coordinates = coordinates;
     }
 }

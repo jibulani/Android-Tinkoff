@@ -1,7 +1,7 @@
-package com.eugene.contractorsearch.network;
+package com.eugene.contractorsearch.network.dadata;
 
 
-import com.eugene.contractorsearch.model.Contractor;
+import com.eugene.contractorsearch.network.dadata.Api;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -14,19 +14,7 @@ public class ApiDadataServer {
     private Api api;
 
     public ApiDadataServer() {
-        //Логирование
-//        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
-//        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-//        //OkHttpClient
-//        OkHttpClient client = new OkHttpClient.Builder()
-//                .addNetworkInterceptor(httpLoggingInterceptor)
-//                .addNetworkInterceptor(new StethoInterceptor())
-//                .build();
-
-        //Gson парсер
         GsonBuilder gsonBuilder = new GsonBuilder();
-//        gsonBuilder.registerTypeAdapter(Contractor.class, null);
-//        gsonBuilder.registerTypeAdapter(Contractor.class, null);
         Gson gson = gsonBuilder.create();
 
         //Retrofit

@@ -14,10 +14,10 @@ public class LatestContractorsActivity extends AppCompatActivity {
     private ContractorFragment contractorFragment;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
-        super.onCreate(savedInstanceState, persistentState);
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.latest_contractors);
-        System.out.println("in onCreate");
+        System.out.println("latest contr");
         if (savedInstanceState == null) {
             contractorFragment = ContractorFragment.newInstance();
             getSupportFragmentManager().beginTransaction()
@@ -32,11 +32,5 @@ public class LatestContractorsActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        setContentView(R.layout.latest_contractors);
-        System.out.println("in onResume");
-        contractorFragment = ContractorFragment.newInstance();
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.contractors_container, contractorFragment, CONTRACTOR_FRAGMENT_TAG)
-                .commit();
     }
 }

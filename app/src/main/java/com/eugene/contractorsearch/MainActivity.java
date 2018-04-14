@@ -5,15 +5,12 @@ import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 
 import com.eugene.contractorsearch.latest_contractors.LatestContractorsActivity;
-import com.eugene.contractorsearch.network.ApiDadataServer;
-import com.eugene.contractorsearch.network.RequestObject;
+import com.eugene.contractorsearch.network.dadata.ApiDadataServer;
+import com.eugene.contractorsearch.network.dadata.RequestObject;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;

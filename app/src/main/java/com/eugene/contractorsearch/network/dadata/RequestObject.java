@@ -1,4 +1,4 @@
-package com.eugene.contractorsearch.network;
+package com.eugene.contractorsearch.network.dadata;
 
 
 public class RequestObject {
