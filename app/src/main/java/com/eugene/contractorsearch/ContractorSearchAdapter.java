@@ -72,10 +72,15 @@ public class ContractorSearchAdapter extends ArrayAdapter<Contractor> implements
     }
 
     private String saveContractor(Contractor contractor) {
-        if (appDatabase.contractorDao().getContractorById(contractor.getData().getHid()) == null) {
-            ContractorShortInfo contractorShortInfo = new ContractorShortInfo(contractor);
-            appDatabase.contractorDao().insert(contractorShortInfo);
+        ContractorShortInfo oldContractor = appDatabase.contractorDao()
+                .getContractorById(contractor.getData().getHid());
+        boolean isFavourite = false;
+        if (oldContractor != null) {
+            isFavourite = oldContractor.isFavourite();
+            appDatabase.contractorDao().deleteContractor(oldContractor);
         }
+        ContractorShortInfo contractorShortInfo = new ContractorShortInfo(contractor, isFavourite);
+        appDatabase.contractorDao().insert(contractorShortInfo);
         return contractor.getData().getHid();
     }
 

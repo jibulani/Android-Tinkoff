@@ -28,7 +28,7 @@ public class ContractorShortInfo {
 
     public ContractorShortInfo() {}
 
-    public ContractorShortInfo(Contractor contractor) {
+    public ContractorShortInfo(Contractor contractor, boolean isFavourite) {
         hid = contractor.getData().getHid();
         value = contractor.getValue();
         if (contractor.getData().getManagement() != null) {
@@ -47,7 +47,7 @@ public class ContractorShortInfo {
         ogrn = contractor.getData().getOgrn();
         address = contractor.getData().getAddress().getValue();
         lastRequestDate = new Date();
-        isFavourite = false;
+        this.isFavourite = isFavourite;
     }
 
     public String getHid() {
