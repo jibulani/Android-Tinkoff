@@ -21,7 +21,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".latest_contractors.LatestContractorsActivity" />
+        <activity android:name=".latest_contractors.LatestContractorsActivity">
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+        </activity>
         <activity android:name=".contractor_info.ContractorInfoActivity" />
         <activity android:name=".map.MapActivity" />
 

@@ -9,6 +9,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -17,6 +19,7 @@ import com.eugene.contractorsearch.R;
 import com.eugene.contractorsearch.contractor_info.ContractorInfoActivity;
 import com.eugene.contractorsearch.db.AppDatabase;
 import com.eugene.contractorsearch.db.ContractorShortInfo;
+import com.eugene.contractorsearch.model.Contractor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,26 +29,30 @@ import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
-public class ContractorAdapter extends RecyclerView.Adapter<BaseViewHolder<ContractorShortInfo>> {
+public class ContractorAdapter extends RecyclerView.Adapter<BaseViewHolder<ContractorShortInfo>>
+        implements Filterable {
 
     private List<ContractorShortInfo> contractorList;
+    private List<ContractorShortInfo> contractorListFiltered;
     private AppDatabase appDatabase;
 
     public ContractorAdapter() {
         contractorList = new ArrayList<>();
+        contractorListFiltered = new ArrayList<>();
         appDatabase = App.getInstance().getAppDatabase();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void setDataFromDb() {
         contractorList.clear();
+        contractorListFiltered.clear();
         Single.fromCallable(this::loadContractors)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(contractorShortInfoList -> {
                     contractorList.addAll(contractorShortInfoList);
                     contractorList = sortContractors(contractorList);
-                    System.out.println(contractorShortInfoList);
+                    contractorListFiltered.addAll(contractorList);
                     notifyDataSetChanged();
                 });
     }
@@ -79,7 +86,7 @@ public class ContractorAdapter extends RecyclerView.Adapter<BaseViewHolder<Contr
 
     @Override
     public void onBindViewHolder(BaseViewHolder<ContractorShortInfo> holder, int position) {
-        ContractorShortInfo contractor = contractorList.get(position);
+        ContractorShortInfo contractor = contractorListFiltered.get(position);
         holder.bind(contractor);
         holder.itemView.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
@@ -93,7 +100,38 @@ public class ContractorAdapter extends RecyclerView.Adapter<BaseViewHolder<Contr
 
     @Override
     public int getItemCount() {
-        return contractorList.size();
+        return contractorListFiltered.size();
+    }
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                String charString = constraint.toString();
+                if (charString.isEmpty()) {
+                    contractorListFiltered = contractorList;
+                } else {
+                    List<ContractorShortInfo> filteredList = new ArrayList<>();
+                    contractorList.stream()
+                            .filter(contractorShortInfo ->
+                                    contractorShortInfo.getValue().toLowerCase()
+                                            .contains(charString.toLowerCase()))
+                            .forEach(filteredList::add);
+                    contractorListFiltered = filteredList;
+                }
+                FilterResults filterResults = new FilterResults();
+                filterResults.values = contractorListFiltered;
+                return filterResults;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                contractorListFiltered = (ArrayList<ContractorShortInfo>) results.values;
+                notifyDataSetChanged();
+            }
+        };
     }
 
     static class VerticalItemHolder extends BaseViewHolder<ContractorShortInfo> {
