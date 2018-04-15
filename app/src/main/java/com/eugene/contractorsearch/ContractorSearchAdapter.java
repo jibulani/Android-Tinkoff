@@ -74,11 +74,11 @@ public class ContractorSearchAdapter extends ArrayAdapter<Contractor> implements
                                         hid -> {
                                             Bundle bundle = new Bundle();
                                             bundle.putString(CONTRACTOR_ID, hid);
+                                            bundle.putBoolean(ContractorInfoActivity.IS_NEED_TO_REFRESH, false);
                                             Intent intent = new Intent(v.getContext(), ContractorInfoActivity.class);
                                             intent.putExtras(bundle);
                                             v.getContext().startActivity(intent);
                                         });
-                        System.out.println(coordinates.getLat());
                     });
 
 

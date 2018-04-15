@@ -147,4 +147,17 @@ public class ContractorShortInfo {
     public void setCoordinates(Coordinates coordinates) {
         this.coordinates = coordinates;
     }
+
+    @Override
+    public String toString() {
+        return "Contractor value: " + value + "\n" +
+                "Manager name: " + (managerName == null ? "No info" : managerName) + "\n" +
+                "Manager post: " + (managerPost == null ? "No info" : managerPost) + "\n" +
+                "KPP: " + (kpp == null ? "No info" : kpp) + "\n" +
+                "Full contractor name: " + fullName + "\n" +
+                "INN: " + inn + "\n" +
+                "OGRN: " + ogrn + "\n" +
+                "Address: " + address + "\n" +
+                "Last requested date: " + lastRequestDate.toString();
+    }
 }

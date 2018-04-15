@@ -33,7 +33,6 @@ public class GoogleGeocodingServer {
     }
 
     public Single<Coordinates> getCoordinates(String address, String key) {
-        System.out.println(address.replaceAll(" ", "+"));
         return api.getCoordinates(address.replaceAll(" ", "+"), key);
     }
 }

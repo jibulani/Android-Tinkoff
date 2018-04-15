@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentActivity;
 
 import com.eugene.contractorsearch.ContractorSearchAdapter;
 import com.eugene.contractorsearch.R;
+import com.eugene.contractorsearch.contractor_info.ContractorInfoActivity;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -15,9 +16,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -30,8 +28,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         setContentView(R.layout.map_fragment);
         Intent intent = getIntent();
         if (intent.getExtras() != null) {
-            lat = intent.getExtras().getDouble("lat");
-            lng = intent.getExtras().getDouble("lng");
+            lat = intent.getExtras().getDouble(ContractorInfoActivity.LAT);
+            lng = intent.getExtras().getDouble(ContractorInfoActivity.LNG);
         }
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
