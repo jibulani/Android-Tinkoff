@@ -34,8 +34,6 @@ import io.reactivex.schedulers.Schedulers;
 
 public class ContractorSearchAdapter extends ArrayAdapter<Contractor> implements Filterable {
 
-    public static final String CONTRACTOR_ID = "contractor_id";
-
     private LayoutInflater layoutInflater;
     private ApiDadataServer apiDadataServer;
     private List<Contractor> contractorList;
@@ -73,7 +71,7 @@ public class ContractorSearchAdapter extends ArrayAdapter<Contractor> implements
                                 .subscribe(
                                         hid -> {
                                             Bundle bundle = new Bundle();
-                                            bundle.putString(CONTRACTOR_ID, hid);
+                                            bundle.putString(ContractorInfoActivity.CONTRACTOR_ID, hid);
                                             bundle.putBoolean(ContractorInfoActivity.IS_NEED_TO_REFRESH, false);
                                             Intent intent = new Intent(v.getContext(), ContractorInfoActivity.class);
                                             intent.putExtras(bundle);

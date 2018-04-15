@@ -1,7 +1,9 @@
 package com.eugene.contractorsearch.latest_contractors;
 
 
+import android.content.Intent;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,6 +14,7 @@ import android.widget.TextView;
 
 import com.eugene.contractorsearch.App;
 import com.eugene.contractorsearch.R;
+import com.eugene.contractorsearch.contractor_info.ContractorInfoActivity;
 import com.eugene.contractorsearch.db.AppDatabase;
 import com.eugene.contractorsearch.db.ContractorShortInfo;
 
@@ -78,6 +81,14 @@ public class ContractorAdapter extends RecyclerView.Adapter<BaseViewHolder<Contr
     public void onBindViewHolder(BaseViewHolder<ContractorShortInfo> holder, int position) {
         ContractorShortInfo contractor = contractorList.get(position);
         holder.bind(contractor);
+        holder.itemView.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putString(ContractorInfoActivity.CONTRACTOR_ID, contractor.getHid());
+            bundle.putBoolean(ContractorInfoActivity.IS_NEED_TO_REFRESH, true);
+            Intent intent = new Intent(v.getContext(), ContractorInfoActivity.class);
+            intent.putExtras(bundle);
+            v.getContext().startActivity(intent);
+        });
     }
 
     @Override

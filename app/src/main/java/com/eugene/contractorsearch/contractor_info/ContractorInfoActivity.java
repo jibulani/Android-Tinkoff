@@ -4,14 +4,16 @@ package com.eugene.contractorsearch.contractor_info;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
 import com.eugene.contractorsearch.App;
-import com.eugene.contractorsearch.ContractorSearchAdapter;
 import com.eugene.contractorsearch.R;
 import com.eugene.contractorsearch.db.AppDatabase;
 import com.eugene.contractorsearch.db.ContractorShortInfo;
@@ -30,6 +32,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class ContractorInfoActivity extends AppCompatActivity {
 
+    public static final String CONTRACTOR_ID = "contractor_id";
     public static final String IS_NEED_TO_REFRESH = "is_need_to_refresh";
     public static final String LAT = "lat";
     public static final String LNG = "lng";
@@ -41,6 +44,9 @@ public class ContractorInfoActivity extends AppCompatActivity {
     private ContractorShortInfo contractorShortInfo;
     private ApiDadataServer apiDadataServer;
     private GoogleGeocodingServer googleGeocodingServer;
+    private Button favouriteButton;
+    private Button deleteButton;
+    private FloatingActionButton shareButton;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -55,11 +61,15 @@ public class ContractorInfoActivity extends AppCompatActivity {
         mapButton = findViewById(R.id.map_button);
         appDatabase = App.getInstance().getAppDatabase();
         contractorInfo = findViewById(R.id.contractor_info);
+        favouriteButton = findViewById(R.id.favourite_button);
+        favouriteButton.setVisibility(View.INVISIBLE);
+        deleteButton = findViewById(R.id.delete_button);
+        shareButton = (FloatingActionButton) findViewById(R.id.share_button);
         apiDadataServer = new ApiDadataServer();
         googleGeocodingServer = new GoogleGeocodingServer();
         Intent intent = getIntent();
         if (intent.getExtras() != null) {
-            contractorId = intent.getExtras().getString(ContractorSearchAdapter.CONTRACTOR_ID);
+            contractorId = intent.getExtras().getString(CONTRACTOR_ID);
             System.out.println(contractorId);
             Single.fromCallable(() -> getContractor(contractorId))
                     .subscribeOn(Schedulers.io())
@@ -134,6 +144,40 @@ public class ContractorInfoActivity extends AppCompatActivity {
                 startActivity(newIntent);
             }
         });
+        if (contractorShortInfo.isFavourite()) {
+            favouriteButton.setText("Remove from favourite");
+        } else {
+            favouriteButton.setText("Add to favourite");
+        }
+        favouriteButton.setVisibility(View.VISIBLE);
+        favouriteButton.setOnClickListener(v -> {
+            changeFavouriteStatus();
+            favouriteButton.setText(favouriteButton.getText() == "Add to favourite" ?
+                    "Remove from favourite" : "Add to favourite");
+        });
+        deleteButton.setOnClickListener(v -> deleteContractor());
+        shareButton.setOnClickListener(v -> {
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.putExtra(Intent.EXTRA_TEXT, contractorShortInfo.toString());
+            sendIntent.setType("text/plain");
+            startActivity(sendIntent);
+        });
+    }
+
+    private void deleteContractor() {
+        Single.fromCallable(() -> appDatabase.contractorDao().deleteContractor(contractorShortInfo))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe();
+    }
+
+    private void changeFavouriteStatus() {
+        contractorShortInfo.setFavourite(!contractorShortInfo.isFavourite());
+        Single.fromCallable(() -> appDatabase.contractorDao().updateContractor(contractorShortInfo))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe();
     }
 
     @Override
@@ -148,5 +192,10 @@ public class ContractorInfoActivity extends AppCompatActivity {
 
     private ContractorShortInfo getContractor(String contractorId) {
         return appDatabase.contractorDao().getContractorById(contractorId);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
     }
 }

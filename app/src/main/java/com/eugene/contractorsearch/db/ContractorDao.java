@@ -14,7 +14,7 @@ public interface ContractorDao {
     void insert(ContractorShortInfo contractorShortInfo);
 
     @Delete
-    void deleteContractor(ContractorShortInfo contractorShortInfo);
+    int deleteContractor(ContractorShortInfo contractorShortInfo);
 
     @Update
     int updateContractor(ContractorShortInfo contractorShortInfo);

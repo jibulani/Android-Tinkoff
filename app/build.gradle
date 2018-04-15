@@ -49,4 +49,5 @@ dependencies {
     annotationProcessor 'android.arch.persistence.room:compiler:1.0.0'
 
     implementation 'com.google.android.gms:play-services-maps:15.0.0'
+    implementation 'com.android.support:design:27.1.0'
 }
