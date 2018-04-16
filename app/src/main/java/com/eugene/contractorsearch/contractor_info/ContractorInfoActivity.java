@@ -70,7 +70,6 @@ public class ContractorInfoActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if (intent.getExtras() != null) {
             contractorId = intent.getExtras().getString(CONTRACTOR_ID);
-            System.out.println(contractorId);
             Single.fromCallable(() -> getContractor(contractorId))
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -178,16 +177,6 @@ public class ContractorInfoActivity extends AppCompatActivity {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        removeListeners();
-    }
-
-    private void removeListeners() {
-        mapButton.setOnClickListener(null);
     }
 
     private ContractorShortInfo getContractor(String contractorId) {

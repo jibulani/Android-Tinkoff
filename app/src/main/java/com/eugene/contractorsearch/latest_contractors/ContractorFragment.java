@@ -1,6 +1,7 @@
 package com.eugene.contractorsearch.latest_contractors;
 
 
+import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -16,8 +17,8 @@ import com.eugene.contractorsearch.R;
 
 public class ContractorFragment extends Fragment {
 
-    RecyclerView recyclerView;
-    ContractorAdapter contractorAdapter;
+    private RecyclerView recyclerView;
+    private ContractorAdapter contractorAdapter;
 
     public static ContractorFragment newInstance() {
         ContractorFragment contractorFragment = new ContractorFragment();
@@ -55,6 +56,11 @@ public class ContractorFragment extends Fragment {
         contractorAdapter.setDataFromDb();
         recyclerView.setAdapter(contractorAdapter);
         return rootView;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void updateAdapterData() {
+        getContractorAdapter().setDataFromDb();
     }
 
     @Override

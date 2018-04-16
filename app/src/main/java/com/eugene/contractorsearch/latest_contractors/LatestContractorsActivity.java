@@ -3,9 +3,11 @@ package com.eugene.contractorsearch.latest_contractors;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
@@ -22,7 +24,6 @@ public class LatestContractorsActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.latest_contractors);
-        System.out.println("latest contr");
         if (savedInstanceState == null) {
             contractorFragment = ContractorFragment.newInstance();
             getSupportFragmentManager().beginTransaction()
@@ -34,9 +35,11 @@ public class LatestContractorsActivity extends AppCompatActivity {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onResume() {
         super.onResume();
+        contractorFragment.updateAdapterData();
     }
 
     @Override
@@ -49,13 +52,13 @@ public class LatestContractorsActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                contractorFragment.contractorAdapter.getFilter().filter(query);
+                contractorFragment.getContractorAdapter().getFilter().filter(query);
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                contractorFragment.contractorAdapter.getFilter().filter(newText);
+                contractorFragment.getContractorAdapter().getFilter().filter(newText);
                 return false;
             }
         });
