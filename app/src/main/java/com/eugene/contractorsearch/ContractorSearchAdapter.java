@@ -3,11 +3,9 @@ package com.eugene.contractorsearch;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +29,7 @@ import java.util.List;
 
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 public class ContractorSearchAdapter extends ArrayAdapter<Contractor> implements Filterable {
@@ -68,13 +67,8 @@ public class ContractorSearchAdapter extends ArrayAdapter<Contractor> implements
                 googleGeocodingServer.getCoordinates(contractor.getData().getAddress().getValue(), key)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(coordinates -> {
-                            moveToContractorInfo(contractor, v, coordinates);
-                        });
+                        .subscribe(coordinates -> ContractorSearchAdapter.this.moveToContractorInfo(contractor, v, coordinates));
             }
-
-
-
         });
         return textView;
     }
@@ -139,7 +133,6 @@ public class ContractorSearchAdapter extends ArrayAdapter<Contractor> implements
     @Override
     public Filter getFilter() {
         Filter filter = new Filter() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
                 if (constraint != null) {
@@ -150,8 +143,6 @@ public class ContractorSearchAdapter extends ArrayAdapter<Contractor> implements
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(
                                     suggestions -> {
-                                        suggestions.getContractors()
-                                                .forEach(contractor -> System.out.println(contractor.getValue()));
                                         contractorList = suggestions.getContractors();
                                     },
                                     throwable -> System.out.println(String.format("Throwable:%s", throwable.getMessage()))
@@ -167,11 +158,12 @@ public class ContractorSearchAdapter extends ArrayAdapter<Contractor> implements
                 return filterResults;
             }
 
-            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 clear();
-                ((List<Contractor>)results.values).forEach(contractor -> add(contractor));
+                for (Contractor contractor : (List<Contractor>)results.values) {
+                    add(contractor);
+                }
                 if (results.count > 0) {
                     notifyDataSetChanged();
                 } else {

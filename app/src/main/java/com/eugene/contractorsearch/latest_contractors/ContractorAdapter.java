@@ -2,9 +2,7 @@ package com.eugene.contractorsearch.latest_contractors;
 
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,11 +17,11 @@ import com.eugene.contractorsearch.R;
 import com.eugene.contractorsearch.contractor_info.ContractorInfoActivity;
 import com.eugene.contractorsearch.db.AppDatabase;
 import com.eugene.contractorsearch.db.ContractorShortInfo;
-import com.eugene.contractorsearch.model.Contractor;
+import com.google.common.collect.Collections2;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -42,7 +40,6 @@ public class ContractorAdapter extends RecyclerView.Adapter<BaseViewHolder<Contr
         appDatabase = App.getInstance().getAppDatabase();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public void setDataFromDb() {
         contractorList.clear();
         contractorListFiltered.clear();
@@ -56,20 +53,19 @@ public class ContractorAdapter extends RecyclerView.Adapter<BaseViewHolder<Contr
                 });
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     private List<ContractorShortInfo> sortContractors(List<ContractorShortInfo> contractorList) {
-        List<ContractorShortInfo> favoriteContractors = contractorList.stream()
-                .filter(ContractorShortInfo::isFavourite).collect(Collectors.toList());
-        List<ContractorShortInfo> notFavoriteContractors = contractorList.stream()
-                .filter(contractorShortInfo -> !contractorShortInfo.isFavourite())
-                .collect(Collectors.toList());
-        favoriteContractors = favoriteContractors.stream().sorted((contractor1, contractor2) ->
-                contractor2.getLastRequestDate().compareTo(contractor1.getLastRequestDate())).collect(Collectors.toList());
-        notFavoriteContractors = notFavoriteContractors.stream().sorted((contractor1, contractor2) ->
-                contractor2.getLastRequestDate().compareTo(contractor1.getLastRequestDate())).collect(Collectors.toList());
-        List<ContractorShortInfo> sortedContractors = favoriteContractors;
-        sortedContractors.addAll(notFavoriteContractors);
-        return sortedContractors;
+        List<ContractorShortInfo> favoriteContractors = new ArrayList<>(Collections2
+                .filter(contractorList, contractorShortInfo -> contractorShortInfo != null &&
+                        contractorShortInfo.isFavourite()));
+        List<ContractorShortInfo> notFavoriteContractors = new ArrayList<>(Collections2
+                .filter(contractorList, contractorShortInfo -> contractorShortInfo != null &&
+                        !contractorShortInfo.isFavourite()));
+        Collections.sort(favoriteContractors, (contractor1, contractor2) ->
+                contractor2.getLastRequestDate().compareTo(contractor1.getLastRequestDate()));
+        Collections.sort(notFavoriteContractors, (contractor1, contractor2) ->
+                contractor2.getLastRequestDate().compareTo(contractor1.getLastRequestDate()));
+        favoriteContractors.addAll(notFavoriteContractors);
+        return favoriteContractors;
     }
 
     private List<ContractorShortInfo> loadContractors() {
@@ -105,7 +101,6 @@ public class ContractorAdapter extends RecyclerView.Adapter<BaseViewHolder<Contr
     @Override
     public Filter getFilter() {
         return new Filter() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
                 String charString = constraint.toString();
@@ -113,12 +108,9 @@ public class ContractorAdapter extends RecyclerView.Adapter<BaseViewHolder<Contr
                 if (charString.isEmpty()) {
                     contractorListFiltered.addAll(contractorList);
                 } else {
-                    List<ContractorShortInfo> filteredList = new ArrayList<>();
-                    contractorList.stream()
-                            .filter(contractorShortInfo ->
-                                    contractorShortInfo.getValue().toLowerCase()
-                                            .contains(charString.toLowerCase()))
-                            .forEach(filteredList::add);
+                    List<ContractorShortInfo> filteredList = new ArrayList<>(Collections2
+                            .filter(contractorList, contractorShortInfo -> contractorShortInfo != null &&
+                                    contractorShortInfo.getValue().toLowerCase().contains(charString.toLowerCase())));
                     contractorListFiltered.addAll(filteredList);
                 }
                 FilterResults filterResults = new FilterResults();

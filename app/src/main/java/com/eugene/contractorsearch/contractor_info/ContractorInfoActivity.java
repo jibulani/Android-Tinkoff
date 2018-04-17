@@ -2,11 +2,9 @@ package com.eugene.contractorsearch.contractor_info;
 
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
@@ -15,14 +13,17 @@ import com.eugene.contractorsearch.App;
 import com.eugene.contractorsearch.R;
 import com.eugene.contractorsearch.db.AppDatabase;
 import com.eugene.contractorsearch.db.ContractorShortInfo;
+import com.eugene.contractorsearch.db.Coordinates;
 import com.eugene.contractorsearch.map.MapActivity;
 import com.eugene.contractorsearch.model.Contractor;
 import com.eugene.contractorsearch.model.Suggestions;
 import com.eugene.contractorsearch.network.dadata.ApiDadataServer;
 import com.eugene.contractorsearch.network.dadata.RequestObject;
 import com.eugene.contractorsearch.network.google_geocoding.GoogleGeocodingServer;
+import com.google.common.collect.Collections2;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -46,7 +47,6 @@ public class ContractorInfoActivity extends AppCompatActivity {
     private FloatingActionButton deleteButton;
     private FloatingActionButton shareButton;
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,7 +54,6 @@ public class ContractorInfoActivity extends AppCompatActivity {
         init();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     private void init() {
         mapButton = (FloatingActionButton) findViewById(R.id.map_button);
         appDatabase = App.getInstance().getAppDatabase();
@@ -94,18 +93,27 @@ public class ContractorInfoActivity extends AppCompatActivity {
                 );
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     private void updateContractorFromSuggestions(Suggestions suggestions) {
-        Optional<Contractor> refreshedContractor = suggestions
-                .getContractors().stream().filter(contractor ->
-                        contractor.getData().getHid()
-                                .equals(contractorShortInfo.getHid()))
-                .findAny();
-        if (refreshedContractor.isPresent()) {
+        List<Contractor> refreshedContractors = new ArrayList<>(Collections2.filter(
+                suggestions.getContractors(),
+                input -> input != null && input.getData().getHid().equals(contractorShortInfo.getHid())));
+        if (!refreshedContractors.isEmpty()) {
             ContractorShortInfo newContractorShortInfo = new ContractorShortInfo(
-                    refreshedContractor.get(), contractorShortInfo.isFavourite());
+                    refreshedContractors.get(0), contractorShortInfo.isFavourite());
+            Coordinates coordinates = new Coordinates();
+            coordinates.setLat(Double.parseDouble(refreshedContractors.get(0).getData()
+                    .getAddress().getAddressData().getGeoLat()));
+            coordinates.setLng(Double.parseDouble(refreshedContractors.get(0).getData()
+                    .getAddress().getAddressData().getGeoLon()));
+            newContractorShortInfo.setCoordinates(coordinates);
             contractorInfo.setText(newContractorShortInfo.toString());
-            updateWithCoordinates(newContractorShortInfo);
+            if (newContractorShortInfo.getCoordinates() != null) {
+                updateDb(newContractorShortInfo);
+                contractorShortInfo = newContractorShortInfo;
+                setListeners();
+            } else {
+                updateWithCoordinates(newContractorShortInfo);
+            }
         }
     }
 
