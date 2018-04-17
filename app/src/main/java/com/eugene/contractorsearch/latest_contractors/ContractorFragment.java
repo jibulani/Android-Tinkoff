@@ -53,7 +53,7 @@ public class ContractorFragment extends Fragment {
         recyclerView.getItemAnimator().setRemoveDuration(700);
 
         contractorAdapter = getContractorAdapter();
-        contractorAdapter.setDataFromDb();
+        //contractorAdapter.setDataFromDb();
         recyclerView.setAdapter(contractorAdapter);
         return rootView;
     }

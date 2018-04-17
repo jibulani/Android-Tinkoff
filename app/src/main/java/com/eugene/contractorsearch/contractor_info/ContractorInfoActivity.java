@@ -9,8 +9,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.eugene.contractorsearch.App;
@@ -40,12 +38,12 @@ public class ContractorInfoActivity extends AppCompatActivity {
     private String contractorId;
     private AppDatabase appDatabase;
     private TextView contractorInfo;
-    private Button mapButton;
+    private FloatingActionButton mapButton;
     private ContractorShortInfo contractorShortInfo;
     private ApiDadataServer apiDadataServer;
     private GoogleGeocodingServer googleGeocodingServer;
-    private Button favouriteButton;
-    private Button deleteButton;
+    private FloatingActionButton favouriteButton;
+    private FloatingActionButton deleteButton;
     private FloatingActionButton shareButton;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -58,12 +56,11 @@ public class ContractorInfoActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void init() {
-        mapButton = findViewById(R.id.map_button);
+        mapButton = (FloatingActionButton) findViewById(R.id.map_button);
         appDatabase = App.getInstance().getAppDatabase();
         contractorInfo = findViewById(R.id.contractor_info);
-        favouriteButton = findViewById(R.id.favourite_button);
-        favouriteButton.setVisibility(View.INVISIBLE);
-        deleteButton = findViewById(R.id.delete_button);
+        favouriteButton = (FloatingActionButton) findViewById(R.id.favourite_button);
+        deleteButton = (FloatingActionButton) findViewById(R.id.delete_button);
         shareButton = (FloatingActionButton) findViewById(R.id.share_button);
         apiDadataServer = new ApiDadataServer();
         googleGeocodingServer = new GoogleGeocodingServer();
@@ -132,6 +129,14 @@ public class ContractorInfoActivity extends AppCompatActivity {
                 .subscribe();
     }
 
+    private void setImageResourceForFavouriteButton() {
+        if (contractorShortInfo.isFavourite()) {
+            favouriteButton.setImageResource(android.R.drawable.star_big_on);
+        } else {
+            favouriteButton.setImageResource(android.R.drawable.star_big_off);
+        }
+    }
+
     private void setListeners() {
         mapButton.setOnClickListener(v -> {
             if (contractorShortInfo != null && contractorShortInfo.getCoordinates() != null) {
@@ -143,16 +148,10 @@ public class ContractorInfoActivity extends AppCompatActivity {
                 startActivity(newIntent);
             }
         });
-        if (contractorShortInfo.isFavourite()) {
-            favouriteButton.setText("Remove from favourite");
-        } else {
-            favouriteButton.setText("Add to favourite");
-        }
-        favouriteButton.setVisibility(View.VISIBLE);
+        setImageResourceForFavouriteButton();
         favouriteButton.setOnClickListener(v -> {
             changeFavouriteStatus();
-            favouriteButton.setText(favouriteButton.getText() == "Add to favourite" ?
-                    "Remove from favourite" : "Add to favourite");
+            setImageResourceForFavouriteButton();
         });
         deleteButton.setOnClickListener(v -> deleteContractor());
         shareButton.setOnClickListener(v -> {

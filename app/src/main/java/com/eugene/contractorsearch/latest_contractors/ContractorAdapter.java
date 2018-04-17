@@ -50,8 +50,7 @@ public class ContractorAdapter extends RecyclerView.Adapter<BaseViewHolder<Contr
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(contractorShortInfoList -> {
-                    contractorList.addAll(contractorShortInfoList);
-                    contractorList = sortContractors(contractorList);
+                    contractorList.addAll(sortContractors(contractorShortInfoList));
                     contractorListFiltered.addAll(contractorList);
                     notifyDataSetChanged();
                 });
@@ -110,8 +109,9 @@ public class ContractorAdapter extends RecyclerView.Adapter<BaseViewHolder<Contr
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
                 String charString = constraint.toString();
+                contractorListFiltered.clear();
                 if (charString.isEmpty()) {
-                    contractorListFiltered = contractorList;
+                    contractorListFiltered.addAll(contractorList);
                 } else {
                     List<ContractorShortInfo> filteredList = new ArrayList<>();
                     contractorList.stream()
@@ -119,7 +119,7 @@ public class ContractorAdapter extends RecyclerView.Adapter<BaseViewHolder<Contr
                                     contractorShortInfo.getValue().toLowerCase()
                                             .contains(charString.toLowerCase()))
                             .forEach(filteredList::add);
-                    contractorListFiltered = filteredList;
+                    contractorListFiltered.addAll(filteredList);
                 }
                 FilterResults filterResults = new FilterResults();
                 filterResults.values = contractorListFiltered;
