@@ -1,4 +1,4 @@
-package com.eugene.contractorsearch.model;
+package com.eugene.contractorsearch.db;
 
 
 public class Coordinates {

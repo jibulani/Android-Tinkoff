@@ -44,33 +44,15 @@ public class MainActivity extends AppCompatActivity {
         removeListeners();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     private void setListeners() {
         latestSearchButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, LatestContractorsActivity.class);
             startActivity(intent);
         });
-//        contractorValue.addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-//
-//            }
-//
-//            @Override
-//            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-//                performRequest(charSequence.toString());
-//            }
-//
-//            @Override
-//            public void afterTextChanged(Editable editable) {
-//
-//            }
-//        });
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void performRequest(String text) {
-        System.out.println(text);
         RequestObject requestObject = new RequestObject();
         requestObject.setQuery(text);
         apiDadataServer.getApi().getContractors(requestObject)

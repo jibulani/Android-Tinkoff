@@ -1,7 +1,7 @@
 package com.eugene.contractorsearch.network.google_geocoding;
 
 
-import com.eugene.contractorsearch.model.Coordinates;
+import com.eugene.contractorsearch.db.Coordinates;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;

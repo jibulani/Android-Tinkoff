@@ -12,6 +12,9 @@ public class Address {
     @SerializedName("unrestricted_value")
     @Expose
     private String unrestrictedValue;
+    @SerializedName("data")
+    @Expose
+    private AddressData addressData;
 
     public String getValue() {
         return value;
@@ -29,4 +32,11 @@ public class Address {
         this.unrestrictedValue = unrestrictedValue;
     }
 
+    public AddressData getAddressData() {
+        return addressData;
+    }
+
+    public void setAddressData(AddressData addressData) {
+        this.addressData = addressData;
+    }
 }

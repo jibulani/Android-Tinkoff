@@ -1,7 +1,7 @@
 package com.eugene.contractorsearch.network.google_geocoding;
 
 
-import com.eugene.contractorsearch.model.Coordinates;
+import com.eugene.contractorsearch.db.Coordinates;
 
 import io.reactivex.Single;
 import retrofit2.http.GET;

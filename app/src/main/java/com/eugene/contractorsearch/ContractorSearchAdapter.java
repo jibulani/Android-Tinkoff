@@ -19,8 +19,9 @@ import android.widget.TextView;
 import com.eugene.contractorsearch.contractor_info.ContractorInfoActivity;
 import com.eugene.contractorsearch.db.AppDatabase;
 import com.eugene.contractorsearch.db.ContractorShortInfo;
+import com.eugene.contractorsearch.model.AddressData;
 import com.eugene.contractorsearch.model.Contractor;
-import com.eugene.contractorsearch.model.Coordinates;
+import com.eugene.contractorsearch.db.Coordinates;
 import com.eugene.contractorsearch.network.dadata.ApiDadataServer;
 import com.eugene.contractorsearch.network.dadata.RequestObject;
 import com.eugene.contractorsearch.network.google_geocoding.GoogleGeocodingServer;
@@ -61,27 +62,63 @@ public class ContractorSearchAdapter extends ArrayAdapter<Contractor> implements
         textView.setText(contractor.getValue());
         textView.setOnClickListener(v -> {
             String key = v.getContext().getResources().getString(R.string.google_maps_key);
-            googleGeocodingServer.getCoordinates(contractor.getData().getAddress().getValue(), key)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(coordinates -> {
-                        Single.fromCallable(() -> saveContractor(contractor, coordinates))
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(
-                                        hid -> {
-                                            Bundle bundle = new Bundle();
-                                            bundle.putString(ContractorInfoActivity.CONTRACTOR_ID, hid);
-                                            bundle.putBoolean(ContractorInfoActivity.IS_NEED_TO_REFRESH, false);
-                                            Intent intent = new Intent(v.getContext(), ContractorInfoActivity.class);
-                                            intent.putExtras(bundle);
-                                            v.getContext().startActivity(intent);
-                                        });
-                    });
+            if (isCoordinatesSet(contractor)) {
+                moveToContractorInfo(contractor, v, getCoordinates(contractor));
+            } else {
+                googleGeocodingServer.getCoordinates(contractor.getData().getAddress().getValue(), key)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(coordinates -> {
+                            moveToContractorInfo(contractor, v, coordinates);
+                        });
+            }
+
 
 
         });
         return textView;
+    }
+
+    private Coordinates getCoordinates(Contractor contractor) {
+        Coordinates coordinates = new Coordinates();
+        try {
+            Double lat = Double.parseDouble(contractor.getData().getAddress().getAddressData().getGeoLat());
+            Double lng = Double.parseDouble(contractor.getData().getAddress().getAddressData().getGeoLon());
+            coordinates.setLat(lat);
+            coordinates.setLng(lng);
+            return coordinates;
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    private boolean isCoordinatesSet(Contractor contractor) {
+        AddressData addressData = contractor.getData().getAddress().getAddressData();
+        if (addressData != null && addressData.getGeoLat() != null &&
+                addressData.getGeoLon() != null) {
+            try {
+                getCoordinates(contractor);
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    private void moveToContractorInfo(Contractor contractor, View v, Coordinates coordinates) {
+        Single.fromCallable(() -> saveContractor(contractor, coordinates))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        hid -> {
+                            Bundle bundle = new Bundle();
+                            bundle.putString(ContractorInfoActivity.CONTRACTOR_ID, hid);
+                            bundle.putBoolean(ContractorInfoActivity.IS_NEED_TO_REFRESH, false);
+                            Intent intent = new Intent(v.getContext(), ContractorInfoActivity.class);
+                            intent.putExtras(bundle);
+                            v.getContext().startActivity(intent);
+                        });
     }
 
     private String saveContractor(Contractor contractor, Coordinates coordinates) {

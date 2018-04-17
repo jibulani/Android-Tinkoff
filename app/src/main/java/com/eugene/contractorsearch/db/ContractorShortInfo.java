@@ -7,7 +7,6 @@ import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
 import com.eugene.contractorsearch.model.Contractor;
-import com.eugene.contractorsearch.model.Coordinates;
 
 import java.util.Date;
 
