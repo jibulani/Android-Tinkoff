@@ -17,10 +17,10 @@ import com.eugene.contractorsearch.R;
 import com.eugene.contractorsearch.contractor_info.ContractorInfoActivity;
 import com.eugene.contractorsearch.db.AppDatabase;
 import com.eugene.contractorsearch.db.ContractorShortInfo;
+import com.eugene.contractorsearch.util.ContractorsSortUtil;
 import com.google.common.collect.Collections2;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import io.reactivex.Single;
@@ -47,25 +47,10 @@ public class ContractorAdapter extends RecyclerView.Adapter<BaseViewHolder<Contr
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(contractorShortInfoList -> {
-                    contractorList.addAll(sortContractors(contractorShortInfoList));
+                    contractorList.addAll(ContractorsSortUtil.sortContractors(contractorShortInfoList));
                     contractorListFiltered.addAll(contractorList);
                     notifyDataSetChanged();
                 });
-    }
-
-    private List<ContractorShortInfo> sortContractors(List<ContractorShortInfo> contractorList) {
-        List<ContractorShortInfo> favoriteContractors = new ArrayList<>(Collections2
-                .filter(contractorList, contractorShortInfo -> contractorShortInfo != null &&
-                        contractorShortInfo.isFavourite()));
-        List<ContractorShortInfo> notFavoriteContractors = new ArrayList<>(Collections2
-                .filter(contractorList, contractorShortInfo -> contractorShortInfo != null &&
-                        !contractorShortInfo.isFavourite()));
-        Collections.sort(favoriteContractors, (contractor1, contractor2) ->
-                contractor2.getLastRequestDate().compareTo(contractor1.getLastRequestDate()));
-        Collections.sort(notFavoriteContractors, (contractor1, contractor2) ->
-                contractor2.getLastRequestDate().compareTo(contractor1.getLastRequestDate()));
-        favoriteContractors.addAll(notFavoriteContractors);
-        return favoriteContractors;
     }
 
     private List<ContractorShortInfo> loadContractors() {

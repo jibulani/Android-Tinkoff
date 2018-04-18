@@ -13,13 +13,13 @@ import com.eugene.contractorsearch.App;
 import com.eugene.contractorsearch.R;
 import com.eugene.contractorsearch.db.AppDatabase;
 import com.eugene.contractorsearch.db.ContractorShortInfo;
-import com.eugene.contractorsearch.db.Coordinates;
 import com.eugene.contractorsearch.map.MapActivity;
 import com.eugene.contractorsearch.model.Contractor;
 import com.eugene.contractorsearch.model.Suggestions;
 import com.eugene.contractorsearch.network.dadata.ApiDadataServer;
 import com.eugene.contractorsearch.network.dadata.RequestObject;
 import com.eugene.contractorsearch.network.google_geocoding.GoogleGeocodingServer;
+import com.eugene.contractorsearch.util.CoordinatesUtil;
 import com.google.common.collect.Collections2;
 
 import java.util.ArrayList;
@@ -98,16 +98,11 @@ public class ContractorInfoActivity extends AppCompatActivity {
                 suggestions.getContractors(),
                 input -> input != null && input.getData().getHid().equals(contractorShortInfo.getHid())));
         if (!refreshedContractors.isEmpty()) {
+            Contractor refreshedContractor = refreshedContractors.get(0);
             ContractorShortInfo newContractorShortInfo = new ContractorShortInfo(
-                    refreshedContractors.get(0), contractorShortInfo.isFavourite());
-            Coordinates coordinates = new Coordinates();
-            coordinates.setLat(Double.parseDouble(refreshedContractors.get(0).getData()
-                    .getAddress().getAddressData().getGeoLat()));
-            coordinates.setLng(Double.parseDouble(refreshedContractors.get(0).getData()
-                    .getAddress().getAddressData().getGeoLon()));
-            newContractorShortInfo.setCoordinates(coordinates);
-            contractorInfo.setText(newContractorShortInfo.toString());
-            if (newContractorShortInfo.getCoordinates() != null) {
+                    refreshedContractor, contractorShortInfo.isFavourite());
+            if (CoordinatesUtil.isCoordinatesSet(refreshedContractor)) {
+                newContractorShortInfo.setCoordinates(CoordinatesUtil.getCoordinates(refreshedContractor));
                 updateDb(newContractorShortInfo);
                 contractorShortInfo = newContractorShortInfo;
                 setListeners();

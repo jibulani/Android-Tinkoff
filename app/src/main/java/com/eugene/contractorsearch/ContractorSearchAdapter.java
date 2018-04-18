@@ -17,19 +17,18 @@ import android.widget.TextView;
 import com.eugene.contractorsearch.contractor_info.ContractorInfoActivity;
 import com.eugene.contractorsearch.db.AppDatabase;
 import com.eugene.contractorsearch.db.ContractorShortInfo;
-import com.eugene.contractorsearch.model.AddressData;
 import com.eugene.contractorsearch.model.Contractor;
 import com.eugene.contractorsearch.db.Coordinates;
 import com.eugene.contractorsearch.network.dadata.ApiDadataServer;
 import com.eugene.contractorsearch.network.dadata.RequestObject;
 import com.eugene.contractorsearch.network.google_geocoding.GoogleGeocodingServer;
+import com.eugene.contractorsearch.util.CoordinatesUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 public class ContractorSearchAdapter extends ArrayAdapter<Contractor> implements Filterable {
@@ -61,8 +60,8 @@ public class ContractorSearchAdapter extends ArrayAdapter<Contractor> implements
         textView.setText(contractor.getValue());
         textView.setOnClickListener(v -> {
             String key = v.getContext().getResources().getString(R.string.google_maps_key);
-            if (isCoordinatesSet(contractor)) {
-                moveToContractorInfo(contractor, v, getCoordinates(contractor));
+            if (CoordinatesUtil.isCoordinatesSet(contractor)) {
+                moveToContractorInfo(contractor, v, CoordinatesUtil.getCoordinates(contractor));
             } else {
                 googleGeocodingServer.getCoordinates(contractor.getData().getAddress().getValue(), key)
                         .subscribeOn(Schedulers.io())
@@ -71,33 +70,6 @@ public class ContractorSearchAdapter extends ArrayAdapter<Contractor> implements
             }
         });
         return textView;
-    }
-
-    private Coordinates getCoordinates(Contractor contractor) {
-        Coordinates coordinates = new Coordinates();
-        try {
-            Double lat = Double.parseDouble(contractor.getData().getAddress().getAddressData().getGeoLat());
-            Double lng = Double.parseDouble(contractor.getData().getAddress().getAddressData().getGeoLon());
-            coordinates.setLat(lat);
-            coordinates.setLng(lng);
-            return coordinates;
-        } catch (Exception e) {
-            throw e;
-        }
-    }
-
-    private boolean isCoordinatesSet(Contractor contractor) {
-        AddressData addressData = contractor.getData().getAddress().getAddressData();
-        if (addressData != null && addressData.getGeoLat() != null &&
-                addressData.getGeoLon() != null) {
-            try {
-                getCoordinates(contractor);
-                return true;
-            } catch (Exception e) {
-                return false;
-            }
-        }
-        return false;
     }
 
     private void moveToContractorInfo(Contractor contractor, View v, Coordinates coordinates) {
