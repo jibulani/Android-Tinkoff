@@ -2,6 +2,7 @@ package com.eugene.contractorsearch.latest_contractors;
 
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -39,10 +40,15 @@ public class ContractorFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.contractors_recycler_view, container, false);
-
         recyclerView = rootView.findViewById(R.id.contractor_list);
-        recyclerView.setLayoutManager(getLayoutManager());
+        return rootView;
+    }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        recyclerView.setLayoutManager(getLayoutManager());
         recyclerView.getItemAnimator().setAddDuration(700);
         recyclerView.getItemAnimator().setChangeDuration(700);
         recyclerView.getItemAnimator().setMoveDuration(700);
@@ -50,7 +56,6 @@ public class ContractorFragment extends Fragment {
 
         contractorAdapter = getContractorAdapter();
         recyclerView.setAdapter(contractorAdapter);
-        return rootView;
     }
 
     public void updateAdapterData() {

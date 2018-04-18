@@ -55,12 +55,12 @@ public class ContractorInfoActivity extends AppCompatActivity {
     }
 
     private void init() {
-        mapButton = (FloatingActionButton) findViewById(R.id.map_button);
+        mapButton = findViewById(R.id.map_button);
         appDatabase = App.getInstance().getAppDatabase();
         contractorInfo = findViewById(R.id.contractor_info);
-        favouriteButton = (FloatingActionButton) findViewById(R.id.favourite_button);
-        deleteButton = (FloatingActionButton) findViewById(R.id.delete_button);
-        shareButton = (FloatingActionButton) findViewById(R.id.share_button);
+        favouriteButton = findViewById(R.id.favourite_button);
+        deleteButton = findViewById(R.id.delete_button);
+        shareButton = findViewById(R.id.share_button);
         apiDadataServer = new ApiDadataServer();
         googleGeocodingServer = new GoogleGeocodingServer();
         Intent intent = getIntent();
@@ -161,7 +161,10 @@ public class ContractorInfoActivity extends AppCompatActivity {
             changeFavouriteStatus();
             setImageResourceForFavouriteButton();
         });
-        deleteButton.setOnClickListener(v -> deleteContractor());
+        deleteButton.setOnClickListener(v -> {
+            deleteContractor();
+            finish();
+        });
         shareButton.setOnClickListener(v -> {
             Intent sendIntent = new Intent();
             sendIntent.setAction(Intent.ACTION_SEND);
