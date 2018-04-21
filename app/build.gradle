@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'key0'
+            keyPassword 'qwer1234'
+            storeFile file('/home/eugene/key store/Android_Tinkoff.jks')
+            storePassword 'qwer1234'
+        }
+    }
     compileSdkVersion 27
     defaultConfig {
         multiDexEnabled true
@@ -16,6 +24,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
         }
     }
     compileOptions {
@@ -49,4 +58,5 @@ dependencies {
     implementation 'com.android.support:design:27.1.0'
     compile 'com.google.guava:guava:22.0-android'
     compile 'com.android.support:multidex:1.0.3'
+    compile 'com.android.support:support-v4:27.1.0'
 }

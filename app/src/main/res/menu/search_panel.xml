@@ -7,7 +7,7 @@
         android:id="@+id/action_search"
         android:icon="@android:drawable/ic_menu_search"
         android:orderInCategory="100"
-        android:title="Search contractor"
+        android:title="@string/search_contractor"
         app:actionViewClass="android.support.v7.widget.SearchView"
         app:showAsAction="always" />
 </menu>
