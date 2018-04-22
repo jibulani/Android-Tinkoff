@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
@@ -22,6 +24,8 @@ public class LatestContractorsActivity extends AppCompatActivity {
     private ContractorFragment contractorFragment;
     private SearchView searchView;
     private BottomNavigationView bottomNavigationView;
+    private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -38,6 +42,9 @@ public class LatestContractorsActivity extends AppCompatActivity {
         }
         bottomNavigationView = findViewById(R.id.navigation);
         bottomNavigationView.setVisibility(View.INVISIBLE);
+        drawerLayout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     }
 
     @Override
@@ -62,8 +69,8 @@ public class LatestContractorsActivity extends AppCompatActivity {
                                 finish();
                                 break;
                             case R.id.action_settings:
-                                Intent intent2 = new Intent(LatestContractorsActivity.this, SettingsActivity.class);
-                                LatestContractorsActivity.this.startActivity(intent2);
+                                Intent intent = new Intent(LatestContractorsActivity.this, SettingsActivity.class);
+                                LatestContractorsActivity.this.startActivity(intent);
                                 finish();
                                 break;
                         }
@@ -71,13 +78,35 @@ public class LatestContractorsActivity extends AppCompatActivity {
                     });
             bottomNavigationView.setSelectedItemId(R.id.action_latest);
             bottomNavigationView.setVisibility(View.VISIBLE);
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        } else if (SettingTypes.drawerMenu) {
+            drawerLayout.closeDrawers();
+            navigationView.getMenu().findItem(R.id.action_latest).setChecked(true);
+            navigationView.setNavigationItemSelectedListener
+                    (item -> {
+                        switch (item.getItemId()) {
+                            case R.id.action_home:
+                                finish();
+                                break;
+                            case R.id.action_settings:
+                                Intent intent = new Intent(LatestContractorsActivity.this, SettingsActivity.class);
+                                LatestContractorsActivity.this.startActivity(intent);
+                                finish();
+                                break;
+                        }
+                        return true;
+                    });
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            bottomNavigationView.setVisibility(View.INVISIBLE);
         } else {
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             bottomNavigationView.setVisibility(View.INVISIBLE);
         }
     }
 
     private void removeListeners() {
         bottomNavigationView.setOnNavigationItemSelectedListener(null);
+        navigationView.setNavigationItemSelectedListener(null);
     }
 
     @Override
